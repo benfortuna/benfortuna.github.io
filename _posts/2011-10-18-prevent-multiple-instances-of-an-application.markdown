@@ -25,14 +25,14 @@ comments: []
 <p>A simple way to prevent running of multiple instances of your application is to use  Socket communication. For example, in Groovy the first thing you would execute is something like this:</p>
 <p>[code]<br />
 try {<br />
-    // choose a unique port (!!)<br />
+    &#47;&#47; choose a unique port (!!)<br />
     new Socket('localhost', 1337)<br />
     println 'Already running'<br />
     System.exit(0)<br />
 }<br />
 catch (Exception e) {<br />
 }<br />
-[/code]</p>
+[&#47;code]</p>
 <p>Following this, another block of code initialises the server socket to indicate an instance is running:</p>
 <p>[code]<br />
 Thread.start {<br />
@@ -41,8 +41,8 @@ Thread.start {<br />
         try {<br />
             server.accept {}<br />
         }<br />
-        // extra actions such as bring window to front<br />
-        // on the running app may be performed here..<br />
+        &#47;&#47; extra actions such as bring window to front<br />
+        &#47;&#47; on the running app may be performed here..<br />
         finally {<br />
             ousia.doLater {<br />
                 frame.visible = true<br />
@@ -50,5 +50,5 @@ Thread.start {<br />
         }<br />
     }<br />
 }<br />
-[/code]</p>
+[&#47;code]</p>
 <p>Of course the same can be done in Java, just not in such a concise way. :)</p>

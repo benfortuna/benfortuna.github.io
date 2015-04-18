@@ -18,4 +18,4 @@ categories: []
 tags: []
 comments: []
 ---
-<p><script type="text/javascript" src="http://forum.mnode.org/plugins/embedvanilla/remote.js"></script></p>
+<p><script type="text&#47;javascript" src="http:&#47;&#47;forum.mnode.org&#47;plugins&#47;embedvanilla&#47;remote.js"><&#47;script></p>
