@@ -22,7 +22,7 @@ tags:
 - adapter
 comments: []
 ---
-<p>Application logging always seems to become one of those <a href="http:&#47;&#47;en.wikipedia.org&#47;wiki&#47;Code_smell">code smells<&#47;a>, typically regarding <a href="http:&#47;&#47;en.wikipedia.org&#47;wiki&#47;Duplicate_code">duplication of code<&#47;a>, or conversely, non-uniform log messages.</p>
+<p>Application logging always seems to become one of those <a href="http://en.wikipedia.org/wiki/Code_smell">code smells</a>, typically regarding <a href="http://en.wikipedia.org/wiki/Duplicate_code">duplication of code</a>, or conversely, non-uniform log messages.</p>
 <p>There are many different ways to log a message in  Java, but variations on the following pattern are common:</p>
 <p>[java]<br />
 public class SomeClass {</p>
@@ -30,31 +30,31 @@ public class SomeClass {</p>
 <p>  ...</p>
 <p>  public void someMethod() {<br />
     if (LOG.isDebugEnabled()) {<br />
-      LOG.debug("Some message - someObject is: " + someObject);<br />
+      LOG.debug(&quot;Some message - someObject is: &quot; + someObject);<br />
     }</p>
 <p>    try {<br />
       ...<br />
     } catch (SomeException e) {<br />
-      LOG.error("Unexpected error: " + e.getMessage(), e);<br />
+      LOG.error(&quot;Unexpected error: &quot; + e.getMessage(), e);<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>The following information can be extracted from this pattern:</p>
 <ul>
-<li>Category - classification for log entries<&#47;li>
-<li>Level - the severity of a log entry<&#47;li>
-<li>Message - a log entry message<&#47;li>
-<li>Message arguments - variable components of a log message<&#47;li>
-<li>Exception - an exception for logging a stack trace<&#47;li><br />
-<&#47;ul><br />
-<strong>Message Uniformity<&#47;strong></p>
+<li>Category - classification for log entries</li>
+<li>Level - the severity of a log entry</li>
+<li>Message - a log entry message</li>
+<li>Message arguments - variable components of a log message</li>
+<li>Exception - an exception for logging a stack trace</li>
+</ul>
+<p><strong>Message Uniformity</strong></p>
 <p>One problem with this pattern is that we tend to duplicate the same message strings when logging similar scenarios (e.g. unexpected exceptions).</p>
 <p>Messages are also generally constructed by concatenating messages and message arguments - a practice that generally should be avoided if possible. We can solve these issues using message templates:</p>
 <p>[java]<br />
 import java.text.MessageFormat;</p>
 <p>public class SomeClass {</p>
-<p>  private static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error: {0}";</p>
+<p>  private static final String UNEXPECTED_ERROR_MESSAGE = &quot;Unexpected error: {0}&quot;;</p>
 <p>  ...</p>
 <p>  public void someMethod() {</p>
 <p>    try {<br />
@@ -64,11 +64,11 @@ import java.text.MessageFormat;</p>
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>Inconsistent log messages also result from having the message strings defined across multiple classes. Using message templates we can refactor these messages to be defined in a single location:</p>
 <p>[java]<br />
 public enum LogEntry {<br />
-  UnexpectedError("Unexpected Error: {0}");</p>
+  UnexpectedError(&quot;Unexpected Error: {0}&quot;);</p>
 <p>  private final String message;</p>
 <p>  public String getMessage(Object...args) {<br />
     return MessageFormat.format(message, args);<br />
@@ -84,15 +84,15 @@ public enum LogEntry {<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
-<p><strong>Log Levels<&#47;strong></p>
+[/java]</p>
+<p><strong>Log Levels</strong></p>
 <p>In the majority of cases, log entries that share the same message will also be logged at the same level. By associating a default log level with a log entry we can enforce uniformity of log levels:</p>
 <p>[java]<br />
 public enum LogLevel {<br />
   Trace, Debug, Info, Warn, Error;<br />
 }</p>
 <p>public enum LogEntry {<br />
-  UnexpectedError("Unexpected Error: {0}", LogLevel.Error);</p>
+  UnexpectedError(&quot;Unexpected Error: {0}&quot;, LogLevel.Error);</p>
 <p>  ...</p>
 <p>  private final LogLevel level;</p>
 <p>  public LogLevel getLevel() {<br />
@@ -132,27 +132,27 @@ public enum LogLevel {<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>To avoid the expensive construction of frequently logged message strings we use conditionals to check if a log level is enabled prior to message construction:</p>
 <p>[java]<br />
   ...<br />
   if (LOG.isDebugEnabled()) {<br />
-    LOG.debug("Some message - someObject status is: " + someObject.expensiveMethod());<br />
+    LOG.debug(&quot;Some message - someObject status is: &quot; + someObject.expensiveMethod());<br />
   }<br />
   ...<br />
-[&#47;java]</p>
+[/java]</p>
 <p>Such conditionals are prone to error however, especially if the log level is changed:</p>
 <p>[java]<br />
   ...<br />
   if (LOG.isDebugEnabled()) {<br />
-    LOG.warn("Some message - someObject status is: " + someObject.expensiveMethod());<br />
+    LOG.warn(&quot;Some message - someObject status is: &quot; + someObject.expensiveMethod());<br />
   }<br />
   ...<br />
-[&#47;java]</p>
+[/java]</p>
 <p>Uniform logging can help to avoid such mistakes:</p>
 <p>[java]<br />
 public enum LogEntry {<br />
-  SomeObjectStatus("Some message - someObject status is: {0}", LogLevel.Debug);<br />
+  SomeObjectStatus(&quot;Some message - someObject status is: {0}&quot;, LogLevel.Debug);<br />
   ...<br />
 }</p>
 <p>public class LogAdapter {<br />
@@ -182,7 +182,7 @@ public enum LogEntry {<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
-<p>Note that a level check conditional is only required whereby an expensive method must be called to retrieve message arguments. The expense of the message string construction is handled by the <em>LogAdapter<&#47;em>.</p>
-<p><strong>Conclusion<&#47;strong></p>
+[/java]</p>
+<p>Note that a level check conditional is only required whereby an expensive method must be called to retrieve message arguments. The expense of the message string construction is handled by the <em>LogAdapter</em>.</p>
+<p><strong>Conclusion</strong></p>
 <p>Logging can be a repetitive, expensive and often error prone exercise. By centralising the log entries we reduce code duplication and potential for bugs through uniformity and re-use.</p>

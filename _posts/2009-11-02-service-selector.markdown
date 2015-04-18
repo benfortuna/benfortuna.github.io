@@ -31,14 +31,14 @@ tags:
 - proxy
 comments: []
 ---
-<p>Sometimes we may have more than one implementation and&#47;or instance of a service to which we need to route requests. Routing may be controlled by a number of different factors, such as the request type, request arguments, runtime configuration, etc.</p>
+<p>Sometimes we may have more than one implementation and/or instance of a service to which we need to route requests. Routing may be controlled by a number of different factors, such as the request type, request arguments, runtime configuration, etc.</p>
 <p>An implementation of such routing might look something like this:</p>
 <p>[java]<br />
 public interface SomeService {<br />
   void someMethod();<br />
 }</p>
 <p>public class RoutingSomeService implements SomeService {</p>
-<p>  private Map<String, SomeService> delegates = ...</p>
+<p>  private Map&lt;String, SomeService&gt; delegates = ...</p>
 <p>  private String activeDelegateId = ...</p>
 <p>  public void someMethod() {<br />
     SomeService delegate = delegates.get(activeDelegateId);<br />
@@ -46,65 +46,65 @@ public interface SomeService {<br />
       delegate.someMethod();<br />
     }<br />
     else {<br />
-      &#47;&#47; XXX: throw runtime exception???<br />
+      // XXX: throw runtime exception???<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>The common elements here are:</p>
 <ul>
-<li>A collection of delegate services<&#47;li>
-<li>A mechanism (e.g. key) for identifying the appropriate delegate for a request<&#47;li><br />
-<&#47;ul></p>
+<li>A collection of delegate services</li>
+<li>A mechanism (e.g. key) for identifying the appropriate delegate for a request</li>
+</ul>
 <p>Using interfaces we can create a pattern for supporting different types of service selection:</p>
 <p>[java]<br />
-public interface ServiceSelector<T> {</p>
+public interface ServiceSelector&lt;T&gt; {</p>
 <p>  T getService(Method method, Object[] args);<br />
 }</p>
-<p>&#47;**<br />
+<p>/**<br />
  * A ServiceSelector that routes requests to the active service specified in an external configuration.<br />
- *&#47;<br />
-public class ConfigurableServiceSelector implements ServiceSelector<SomeService> {</p>
-<p>  private final Map<String, SomeService> services = ...</p>
+ */<br />
+public class ConfigurableServiceSelector implements ServiceSelector&lt;SomeService&gt; {</p>
+<p>  private final Map&lt;String, SomeService&gt; services = ...</p>
 <p>  private final Properties configuration = ...</p>
 <p>  public SomeService getService(Method method, Object[] args) {<br />
-    return services.get(configuration.getProperty("someService.activeId"));<br />
+    return services.get(configuration.getProperty(&quot;someService.activeId&quot;));<br />
   }<br />
 }</p>
-<p>&#47;**<br />
+<p>/**<br />
  * A ServiceSelector that supports routing of different methods based on an external configuration.<br />
- *&#47;<br />
-public class MethodServiceSelector implements ServiceSelector<SomeService> {</p>
-<p>  private final Map<Method, SomeService> services = ...</p>
+ */<br />
+public class MethodServiceSelector implements ServiceSelector&lt;SomeService&gt; {</p>
+<p>  private final Map&lt;Method, SomeService&gt; services = ...</p>
 <p>  public SomeService getService(Method method, Object[] args) {<br />
     return services.get(method);<br />
   }<br />
 }</p>
 <p>...<br />
-[&#47;java]</p>
+[/java]</p>
 <p>So our implementation might then look like this:</p>
 <p>[java]<br />
 public class RoutingSomeService implements SomeService {</p>
-<p>  private ServiceSelector<SomeService> selector = ...</p>
+<p>  private ServiceSelector&lt;SomeService&gt; selector = ...</p>
 <p>  public void someMethod() {<br />
-    SomeService delegate = selector.getService(getClass().getMethod("someMethod"), new Object[] {});<br />
+    SomeService delegate = selector.getService(getClass().getMethod(&quot;someMethod&quot;), new Object[] {});<br />
     if (delegate != null) {<br />
       delegate.someMethod();<br />
     }<br />
     else {<br />
-      &#47;&#47; XXX: throw runtime exception???<br />
+      // XXX: throw runtime exception???<br />
     }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>As you can see this is actually quite an ugly piece of code. However, we can avoid writing this code altogether with the help of Java's proxy support.</p>
-<p><strong>Ergo Proxy<&#47;strong></p>
+<p><strong>Ergo Proxy</strong></p>
 <p>The use of proxies allows us to avoid writing the boilerplate code for service delegation:</p>
 <p>[java]<br />
 import java.lang.reflect.InvocationHandler;<br />
 import java.lang.reflect.Method;</p>
 <p>public class ServiceInvocationHandler implements InvocationHandler {</p>
-<p>    private final ServiceSelector<?> selector;</p>
-<p>    public ServiceInvocationHandler(ServiceSelector<?> selector) {<br />
+<p>    private final ServiceSelector&lt;?&gt; selector;</p>
+<p>    public ServiceInvocationHandler(ServiceSelector&lt;?&gt; selector) {<br />
         this.selector = selector;<br />
     }</p>
 <p>    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {<br />
@@ -119,11 +119,11 @@ import java.lang.reflect.Method;</p>
 <p>  public static ServiceConsumer newInstance(SomeService service) {<br />
     return new ServiceConsumer(service);<br />
   }</p>
-<p>  public static ServiceConsumer newInstance(ServiceSelector<SomeService> selector) {<br />
+<p>  public static ServiceConsumer newInstance(ServiceSelector&lt;SomeService&gt; selector) {<br />
     final InvocationHandler invocationHandler = new ServiceInvocationHandler(selector);<br />
-    return new ServiceConsumer((SomeService) Proxy.newProxyInstance(SomeService.class.getClassLoader(), new Class<?>[] {SomeService.class}, invocationHandler);<br />
+    return new ServiceConsumer((SomeService) Proxy.newProxyInstance(SomeService.class.getClassLoader(), new Class&lt;?&gt;[] {SomeService.class}, invocationHandler);<br />
   }<br />
 }<br />
-[&#47;java]</p>
-<p><strong>Conclusion<&#47;strong></p>
+[/java]</p>
+<p><strong>Conclusion</strong></p>
 <p>Defining a standard interface for routing service requests provides us with a consistent and re-usable way of managing routing rules. Using proxies also ensures that service contracts are maintained and our client code doesn't need to change.</p>

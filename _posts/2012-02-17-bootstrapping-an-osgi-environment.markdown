@@ -25,18 +25,18 @@ comments: []
 <p>Something I have always lamented about OSGi is a lack of simple examples to get up and running quickly. So here is a simple example using Groovy:</p>
 <p>First, dependencies are easily added via Maven, adding the following to your pom.xml should do it.</p>
 <p>[code]<br />
-	<dependencies><br />
-		<dependency><br />
-			<groupId>org.codehaus.groovy<&#47;groupId><br />
-			<artifactId>groovy-all<&#47;artifactId><br />
-		<&#47;dependency><br />
-		<dependency><br />
-			<groupId>org.apache.felix<&#47;groupId><br />
-			<artifactId>org.apache.felix.framework<&#47;artifactId><br />
-			<version>4.0.2<&#47;version><br />
-  		<&#47;dependency><br />
-	<&#47;dependencies><br />
-[&#47;code]</p>
+	&lt;dependencies&gt;<br />
+		&lt;dependency&gt;<br />
+			&lt;groupId&gt;org.codehaus.groovy&lt;/groupId&gt;<br />
+			&lt;artifactId&gt;groovy-all&lt;/artifactId&gt;<br />
+		&lt;/dependency&gt;<br />
+		&lt;dependency&gt;<br />
+			&lt;groupId&gt;org.apache.felix&lt;/groupId&gt;<br />
+			&lt;artifactId&gt;org.apache.felix.framework&lt;/artifactId&gt;<br />
+			&lt;version&gt;4.0.2&lt;/version&gt;<br />
+  		&lt;/dependency&gt;<br />
+	&lt;/dependencies&gt;<br />
+[/code]</p>
 <p>Then a simple Groovy script to start the OSGi framework and print a message.</p>
 <p>[code]<br />
 import org.osgi.framework.BundleActivator<br />
@@ -46,15 +46,15 @@ import org.osgi.framework.launch.FrameworkFactory</p>
 <p>FrameworkFactory osgiFactory = ServiceLoader.load(FrameworkFactory).find()</p>
 <p>def configMap = ['felix.systembundle.activators': [new BundleActivator() {<br />
 	void start(BundleContext context) throws Exception {<br />
-		println "System bundle started"<br />
+		println &quot;System bundle started&quot;<br />
 	}<br />
 	void stop(BundleContext context) throws Exception {<br />
-		println "System bundle stopped"<br />
+		println &quot;System bundle stopped&quot;<br />
 	}<br />
 }]]<br />
 Framework osgi = osgiFactory.newFramework(configMap)</p>
 <p>System.addShutdownHook {<br />
-	println "Shutting down"<br />
+	println &quot;Shutting down&quot;<br />
 	try {<br />
 		osgi.stop()<br />
 		osgi.waitForStop(0)<br />
@@ -66,8 +66,8 @@ Framework osgi = osgiFactory.newFramework(configMap)</p>
 <p>osgi.init()<br />
 osgi.start()<br />
 osgi.bundleContext.bundles.each {<br />
-	println "$it.bundleId $it.symbolicName $it.state"<br />
+	println &quot;$it.bundleId $it.symbolicName $it.state&quot;<br />
 }<br />
 System.exit(0)<br />
-[&#47;code]</p>
+[/code]</p>
 <p>Of course you need to load some bundles to do something useful, but this demonstrates that it isn't actually that hard to create an embedded OSGi runtime with a custom System Bundle Activator for accessing services from other bundles.</p>
