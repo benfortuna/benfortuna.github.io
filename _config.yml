@@ -7,7 +7,7 @@ permalink:        pretty
 
 # Setup
 title:            Base Patterns
-tagline:          "A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness. No magic will do." - Niklaus Wirth
+tagline:          A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness. No magic will do. - Niklaus Wirth
 url:              http://basepatterns.org
 paginate:         1
 baseurl:          /
