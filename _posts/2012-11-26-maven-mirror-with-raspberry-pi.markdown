@@ -55,7 +55,7 @@ Other notables:
 * Enabling SSHD from the R-Pi config menu is handy (!) when running headless
 
 
-[Apache Archive]: http://archiva.apache.org
+[Apache Archiva]: http://archiva.apache.org
 [Sonatype Nexus]: http://www.sonatype.org/nexus
 [Raspberry Pi]: http://raspberrypi.org
 [Soft-float Debian "wheezy"]: http://www.raspberrypi.org/downloads
