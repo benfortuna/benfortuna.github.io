@@ -23,134 +23,268 @@ tags:
 - registry
 comments: []
 ---
-<p>In OSGi using a publisher/subscriber design can be somewhat more complicated that traditional Java environments:</p>
-<p>[java]<br />
-public class SomeBundleActivator implements BundleActivator {</p>
-<p>  private SomeService service = ...</p>
-<p>  private ServiceRegistration registration;</p>
-<p>  public void start(BundleContext context) {<br />
-    registration = context.registerService(SomeService.class.getName(), service, null);<br />
-  }<br />
-  ...<br />
-}</p>
-<p>public class AnotherBundleActivator implements BundleActivator {</p>
-<p>  private SomeServiceSubscriber subscriber = ...</p>
-<p>  public void start(BundleContext context) {<br />
-    ServiceLocator serviceLocator = new OsgiServiceLocator(context);<br />
-    SomeService service = serviceLocator.findService(ServiceName.SomeService);</p>
-<p>    // XXX: what if service is not initialised here??<br />
-    service.subscribe(subscriber);</p>
-<p>    // XXX: what if service is removed and/or restarted after here???<br />
-  }<br />
-  ...<br />
-}<br />
-[/java]</p>
-<p>To overcome these hurdles the <a href="http://www.osgi.org/wiki/uploads/Links/whiteboard.pdf">Whiteboard Pattern</a> prescribes registering listeners in the service registry as opposed to services, whereby services can publish events to available listeners at the time of the event.</p>
-<p>[java]<br />
-public class SomeBundleActivator implements BundleActivator {</p>
-<p>  private SomeService service = ...</p>
-<p>  public void start(BundleContext context) {<br />
-    ServiceLocator serviceLocator = new OsgiServiceLocator(context);</p>
-<p>    service.subscribe(new ServiceSubscriber() {<br />
-      public void onEvent(Event e) {<br />
-        List<ServiceSubsriber> subscribers = serviceLocator.findServices(ServiceName.ServiceSubscriber);<br />
-        for (ServiceSubscriber subscriber : subscribers) {<br />
-          subsriber.onEvent(e);<br />
-        }<br />
-      }<br />
-    });<br />
-  }<br />
-  ...<br />
-}</p>
-<p>public class AnotherBundleActivator implements BundleActivator {</p>
-<p>  private SomeServiceSubscriber subscriber = ...</p>
-<p>  private ServiceRegistration registration;</p>
-<p>  public void start(BundleContext context) {<br />
-    registration = context.registerService(ServiceSubscriber.class.getName(), subscriber, null);<br />
-  }<br />
-  ...<br />
-}<br />
-[/java]</p>
-<p>The problem with the <em>Whiteboard Pattern</em> is that it relies on the OSGi Service Registry to maintain the list of active subscribers. This means that publishers (i.e. services) must be either OSGi-aware, or events must be specifically handled and repeated to available subscribers.</p>
-<p><strong>The Whiteboard Registry</strong></p>
-<p>We can extend the Whiteboard Pattern further by creating a dedicated <em>Registry</em> that is responsible for wiring together specific publishers and subscribers:</p>
-<p>[java]<br />
-public class SomeServiceSubscriberRegistry {</p>
-<p>  private final List<SomeService> publishers;</p>
-<p>  private final List<SomeServiceSubscriber> subscribers;<br />
-  ...<br />
-  public void registerPublisher(SomeService publisher) {<br />
-    for (SomeServiceSubscriber subscriber : subscribers) {<br />
-      publisher.subscribe(subscriber);<br />
-    }<br />
-  }</p>
-<p>  public void unregisterPublisher(SomeService publisher) {<br />
-    ...<br />
-  }</p>
-<p>  public void registerSubscriber(SomeServiceSubscriber subscriber) {<br />
-    for (SomeService publisher : publishers) {<br />
-      publisher.subscribe(subscriber);<br />
-    }<br />
-  }</p>
-<p>  public void unregisterSubscriber(SomeServiceSubscriber subscriber) {<br />
-    ...<br />
-  }<br />
-}<br />
-[/java]</p>
-<p>Using this registry publishers and subscribers are wired together as they are made available:</p>
-<p>[java]<br />
-public class WhiteboardRegistryBundleActivator implements BundleActivator {</p>
-<p>  private final SomeServiceSubscriberRegistry registry = ...</p>
-<p>  public void start(BundleContext context) {<br />
-    context.addServiceListener(new ServiceListener() {<br />
-      public void serviceChanged(ServiceEvent e) {<br />
-        if (e.getType() == ServiceEvent.REGISTERED) {<br />
-          registry.registerPublisher((SomeService) context.getService(e.getServiceReference()));<br />
-        }<br />
-        else if (e.getType() == ServiceEvent.UNREGISTERING) {<br />
-          registry.unregisterPublisher((SomeService) context.getService(e.getServiceReference()));<br />
-        }<br />
-      }<br />
-    }, "(objectClass=" + SomeService.class.getName + ")");</p>
-<p>    context.addServiceListener(new ServiceListener() {<br />
-      public void serviceChanged(ServiceEvent e) {<br />
-        if (e.getType() == ServiceEvent.REGISTERED) {<br />
-          registry.registerSubscriber((ServiceSubscriber) context.getService(e.getServiceReference()));<br />
-        }<br />
-        else if (e.getType() == ServiceEvent.UNREGISTERING) {<br />
-          registry.unregisterSubscriber((ServiceSubscriber) context.getService(e.getServiceReference()));<br />
-        }<br />
-      }<br />
-    }, "(objectClass=" + ServiceSubscriber.class.getName + ")");<br />
-  }<br />
-  ...<br />
-}</p>
-<p>public class SomeBundleActivator implements BundleActivator {</p>
-<p>  private SomeService service = ...</p>
-<p>  private ServiceRegistration registration;</p>
-<p>  public void start(BundleContext context) {<br />
-    registration = context.registerService(SomeService.class.getName(), service, null);<br />
-  }<br />
-  ...<br />
-}</p>
-<p>public class AnotherBundleActivator implements BundleActivator {</p>
-<p>  private SomeServiceSubscriber subscriber = ...</p>
-<p>  private ServiceRegistration registration;</p>
-<p>  public void start(BundleContext context) {<br />
-    registration = context.registerService(ServiceSubscriber.class.getName(), subscriber, null);<br />
-  }<br />
-  ...<br />
-}<br />
-[/java]</p>
-<p>The wiring can be made even simpler by using a Dependency Injection framework such as <a href="http://static.springsource.org/osgi/docs/1.2.0/reference/html/service-registry.html#service-registry:refs:dynamics">Spring DM</a>:</p>
-<p>[xml]<br />
-  ...<br />
-    <bean id="SomeServiceSubscriberRegistry" class="org.mnode.example.whiteboard.SomeServiceSubscriberRegistry"/></p>
-<p>    <osgi:reference id="SomeServiceWiring" interface="org.mnode.example.whiteboard.SomeService"><br />
-      <osgi:listener ref="SomeServiceSubscriberRegistry" bind-method="registerPublisher" unbind-method="unregisterPublisher" /></p>
-<p>    <osgi:reference id="ServiceSubscriberWiring" interface="org.mnode.example.whiteboard.ServiceSubscriber"><br />
-      <osgi:listener ref="SomeServiceSubscriberRegistry" bind-method="registerSubscriber" unbind-method="unregisterSubscriber" /><br />
-  ...<br />
-[/xml]</p>
-<p><strong>Conclusion</strong></p>
-<p>By creating a <em>Whiteboard Registry</em> that is dedicated to wiring services and service subscribers, we can bring the benefits of the <em>Whiteboard Pattern</em> to event listener models and other publisher/subscriber frameworks that are not OSGi-aware.</p>
+
+In OSGi using a publisher/subscriber design can be somewhat more complicated that traditional Java environments:
+
+```java
+
+public class SomeBundleActivator implements BundleActivator {
+
+  private SomeService service = ...
+
+  private ServiceRegistration registration;
+
+  public void start(BundleContext context) {
+
+    registration = context.registerService(SomeService.class.getName(), service, null);
+
+  }
+
+  ...
+
+}
+
+public class AnotherBundleActivator implements BundleActivator {
+
+  private SomeServiceSubscriber subscriber = ...
+
+  public void start(BundleContext context) {
+
+    ServiceLocator serviceLocator = new OsgiServiceLocator(context);
+
+    SomeService service = serviceLocator.findService(ServiceName.SomeService);
+
+    // XXX: what if service is not initialised here??
+
+    service.subscribe(subscriber);
+
+    // XXX: what if service is removed and/or restarted after here???
+
+  }
+
+  ...
+
+}
+
+```
+
+To overcome these hurdles the [Whiteboard Pattern] prescribes registering listeners in the service registry as opposed to services, whereby services can publish events to available listeners at the time of the event.
+
+```java
+
+public class SomeBundleActivator implements BundleActivator {
+
+  private SomeService service = ...
+
+  public void start(BundleContext context) {
+
+    ServiceLocator serviceLocator = new OsgiServiceLocator(context);
+
+    service.subscribe(new ServiceSubscriber() {
+
+      public void onEvent(Event e) {
+
+        List<ServiceSubsriber> subscribers = serviceLocator.findServices(ServiceName.ServiceSubscriber);
+
+        for (ServiceSubscriber subscriber : subscribers) {
+
+          subsriber.onEvent(e);
+
+        }
+
+      }
+
+    });
+
+  }
+
+  ...
+
+}
+
+public class AnotherBundleActivator implements BundleActivator {
+
+  private SomeServiceSubscriber subscriber = ...
+
+  private ServiceRegistration registration;
+
+  public void start(BundleContext context) {
+
+    registration = context.registerService(ServiceSubscriber.class.getName(), subscriber, null);
+
+  }
+
+  ...
+
+}
+
+```
+
+The problem with the *Whiteboard Pattern* is that it relies on the OSGi Service Registry to maintain the list of active subscribers. This means that publishers (i.e. services) must be either OSGi-aware, or events must be specifically handled and repeated to available subscribers.
+
+**The Whiteboard Registry**
+
+We can extend the Whiteboard Pattern further by creating a dedicated *Registry* that is responsible for wiring together specific publishers and subscribers:
+
+```java
+
+public class SomeServiceSubscriberRegistry {
+
+  private final List<SomeService> publishers;
+
+  private final List<SomeServiceSubscriber> subscribers;
+
+  ...
+
+  public void registerPublisher(SomeService publisher) {
+
+    for (SomeServiceSubscriber subscriber : subscribers) {
+
+      publisher.subscribe(subscriber);
+
+    }
+
+  }
+
+  public void unregisterPublisher(SomeService publisher) {
+
+    ...
+
+  }
+
+  public void registerSubscriber(SomeServiceSubscriber subscriber) {
+
+    for (SomeService publisher : publishers) {
+
+      publisher.subscribe(subscriber);
+
+    }
+
+  }
+
+  public void unregisterSubscriber(SomeServiceSubscriber subscriber) {
+
+    ...
+
+  }
+
+}
+
+```
+
+Using this registry publishers and subscribers are wired together as they are made available:
+
+```java
+
+public class WhiteboardRegistryBundleActivator implements BundleActivator {
+
+  private final SomeServiceSubscriberRegistry registry = ...
+
+  public void start(BundleContext context) {
+
+    context.addServiceListener(new ServiceListener() {
+
+      public void serviceChanged(ServiceEvent e) {
+
+        if (e.getType() == ServiceEvent.REGISTERED) {
+
+          registry.registerPublisher((SomeService) context.getService(e.getServiceReference()));
+
+        }
+
+        else if (e.getType() == ServiceEvent.UNREGISTERING) {
+
+          registry.unregisterPublisher((SomeService) context.getService(e.getServiceReference()));
+
+        }
+
+      }
+
+    }, "(objectClass=" + SomeService.class.getName + ")");
+
+    context.addServiceListener(new ServiceListener() {
+
+      public void serviceChanged(ServiceEvent e) {
+
+        if (e.getType() == ServiceEvent.REGISTERED) {
+
+          registry.registerSubscriber((ServiceSubscriber) context.getService(e.getServiceReference()));
+
+        }
+
+        else if (e.getType() == ServiceEvent.UNREGISTERING) {
+
+          registry.unregisterSubscriber((ServiceSubscriber) context.getService(e.getServiceReference()));
+
+        }
+
+      }
+
+    }, "(objectClass=" + ServiceSubscriber.class.getName + ")");
+
+  }
+
+  ...
+
+}
+
+public class SomeBundleActivator implements BundleActivator {
+
+  private SomeService service = ...
+
+  private ServiceRegistration registration;
+
+  public void start(BundleContext context) {
+
+    registration = context.registerService(SomeService.class.getName(), service, null);
+
+  }
+
+  ...
+
+}
+
+public class AnotherBundleActivator implements BundleActivator {
+
+  private SomeServiceSubscriber subscriber = ...
+
+  private ServiceRegistration registration;
+
+  public void start(BundleContext context) {
+
+    registration = context.registerService(ServiceSubscriber.class.getName(), subscriber, null);
+
+  }
+
+  ...
+
+}
+
+```
+
+The wiring can be made even simpler by using a Dependency Injection framework such as [Spring DM]:
+
+[xml]
+
+  ...
+
+    <bean id="SomeServiceSubscriberRegistry" class="org.mnode.example.whiteboard.SomeServiceSubscriberRegistry"/>
+
+    <osgi:reference id="SomeServiceWiring" interface="org.mnode.example.whiteboard.SomeService">
+
+      <osgi:listener ref="SomeServiceSubscriberRegistry" bind-method="registerPublisher" unbind-method="unregisterPublisher" />
+
+    <osgi:reference id="ServiceSubscriberWiring" interface="org.mnode.example.whiteboard.ServiceSubscriber">
+
+      <osgi:listener ref="SomeServiceSubscriberRegistry" bind-method="registerSubscriber" unbind-method="unregisterSubscriber" />
+
+  ...
+
+[/xml]
+
+**Conclusion**
+
+By creating a *Whiteboard Registry* that is dedicated to wiring services and service subscribers, we can bring the benefits of the *Whiteboard Pattern* to event listener models and other publisher/subscriber frameworks that are not OSGi-aware.
+
+[Whiteboard Pattern]: http://www.osgi.org/wiki/uploads/Links/whiteboard.pdf
+[Spring DM]: http://static.springsource.org/osgi/docs/1.2.0/reference/html/service-registry.html#service-registry:refs:dynamics

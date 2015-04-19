@@ -22,33 +22,63 @@ tags:
 - application
 comments: []
 ---
-<p>A simple way to prevent running of multiple instances of your application is to use  Socket communication. For example, in Groovy the first thing you would execute is something like this:</p>
-<p>[code]<br />
-try {<br />
-    // choose a unique port (!!)<br />
-    new Socket('localhost', 1337)<br />
-    println 'Already running'<br />
-    System.exit(0)<br />
-}<br />
-catch (Exception e) {<br />
-}<br />
-[/code]</p>
-<p>Following this, another block of code initialises the server socket to indicate an instance is running:</p>
-<p>[code]<br />
-Thread.start {<br />
-    ServerSocket server = [1337]<br />
-    while(true) {<br />
-        try {<br />
-            server.accept {}<br />
-        }<br />
-        // extra actions such as bring window to front<br />
-        // on the running app may be performed here..<br />
-        finally {<br />
-            ousia.doLater {<br />
-                frame.visible = true<br />
-            }<br />
-        }<br />
-    }<br />
-}<br />
-[/code]</p>
-<p>Of course the same can be done in Java, just not in such a concise way. :)</p>
+
+A simple way to prevent running of multiple instances of your application is to use  Socket communication. For example, in Groovy the first thing you would execute is something like this:
+
+```
+
+try {
+
+    // choose a unique port (!!)
+
+    new Socket('localhost', 1337)
+
+    println 'Already running'
+
+    System.exit(0)
+
+}
+
+catch (Exception e) {
+
+}
+
+```
+
+Following this, another block of code initialises the server socket to indicate an instance is running:
+
+```
+
+Thread.start {
+
+    ServerSocket server = [1337]
+
+    while(true) {
+
+        try {
+
+            server.accept {}
+
+        }
+
+        // extra actions such as bring window to front
+
+        // on the running app may be performed here..
+
+        finally {
+
+            ousia.doLater {
+
+                frame.visible = true
+
+            }
+
+        }
+
+    }
+
+}
+
+```
+
+Of course the same can be done in Java, just not in such a concise way. :)
