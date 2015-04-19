@@ -27,35 +27,21 @@ Application logging always seems to become one of those [code smells], typically
 
 There are many different ways to log a message in  Java, but variations on the following pattern are common:
 
-```java
-public class SomeClass {
-
-  private static final Log LOG = LogFactory.getLog(SomeClass.class);
-
-  ...
-
-  public void someMethod() {
-
-    if (LOG.isDebugEnabled()) {
-
-      LOG.debug("Some message - someObject is: " + someObject);
-
-    }
-
-    try {
-
+    public class SomeClass {
+      private static final Log LOG = LogFactory.getLog(SomeClass.class);
       ...
-
-    } catch (SomeException e) {
-
-      LOG.error("Unexpected error: " + e.getMessage(), e);
-
+      public void someMethod() {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Some message - someObject is: " + someObject);
+        }
+    
+        try {
+          ...
+        } catch (SomeException e) {
+          LOG.error("Unexpected error: " + e.getMessage(), e);
+        }
+      }
     }
-
-  }
-
-}
-```
 
 The following information can be extracted from this pattern:
 
@@ -74,257 +60,159 @@ One problem with this pattern is that we tend to duplicate the same message stri
 
 Messages are also generally constructed by concatenating messages and message arguments - a practice that generally should be avoided if possible. We can solve these issues using message templates:
 
-```java
-import java.text.MessageFormat;
-
-public class SomeClass {
-
-  private static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error: {0}";
-
-  ...
-
-  public void someMethod() {
-
-    try {
-
+    import java.text.MessageFormat;
+    
+    public class SomeClass {
+      private static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error: {0}";
       ...
-
-    } catch (SomeException e) {
-
-      LOG.error(MessageFormat.format(UNEXPECTED_ERROR_MESSAGE, e.getMessage()), e);
-
+      public void someMethod() {
+        try {
+          ...
+        } catch (SomeException e) {
+          LOG.error(MessageFormat.format(UNEXPECTED_ERROR_MESSAGE, e.getMessage()), e);
+        }
+      }
     }
-
-  }
-
-}
-```
 
 Inconsistent log messages also result from having the message strings defined across multiple classes. Using message templates we can refactor these messages to be defined in a single location:
 
-```java
-public enum LogEntry {
-
-  UnexpectedError("Unexpected Error: {0}");
-
-  private final String message;
-
-  public String getMessage(Object...args) {
-
-    return MessageFormat.format(message, args);
-
-  }
-
-}
-
-public class SomeClass {
-
-  ...
-
-  public void someMethod() {
-
-    try {
-
-      ...
-
-    } catch (SomeException e) {
-
-      LOG.error(LogEntry.UnexpectedError.getMessage(e.getMessage()), e);
-
+    public enum LogEntry {
+      UnexpectedError("Unexpected Error: {0}");
+    
+      private final String message;
+    
+      public String getMessage(Object...args) {
+        return MessageFormat.format(message, args);
+      }
     }
-
-  }
-
-}
-```
+    
+    public class SomeClass {
+      ...
+    
+      public void someMethod() {
+        try {
+          ...
+        } catch (SomeException e) {
+          LOG.error(LogEntry.UnexpectedError.getMessage(e.getMessage()), e);
+        }
+      }
+    }
 
 **Log Levels**
 
 In the majority of cases, log entries that share the same message will also be logged at the same level. By associating a default log level with a log entry we can enforce uniformity of log levels:
 
-```java
-public enum LogLevel {
-
-  Trace, Debug, Info, Warn, Error;
-
-}
-
-public enum LogEntry {
-
-  UnexpectedError("Unexpected Error: {0}", LogLevel.Error);
-
-  ...
-
-  private final LogLevel level;
-
-  public LogLevel getLevel() {
-
-    return level;
-
-  }
-
-}
-
-public class LogAdapter {
-
-  private final Log log;
-
-  ...
-
-  public void log(LogEntry entry, Object...args) {
-
-    if (entry.getLevel() == LogLevel.Error) {
-
-      log.error(entry.getMessage(args));
-
+    public enum LogLevel {
+      Trace, Debug, Info, Warn, Error;
     }
-
-    else if (entry.getLevel() == LogLevel.Warn) {
-
-      log.warn(entry.getMessage(args));
-
-    }
-
-    else ...
-
-  }
-
-  public void log(LogEntry entry, Throwable e, Object...args) {
-
-    if (entry.getLevel() == LogLevel.Error) {
-
-      log.error(entry.getMessage(args), e);
-
-    }
-
-    else if (entry.getLevel() == LogLevel.Warn) {
-
-      log.warn(entry.getMessage(args), e);
-
-    }
-
-    else ...
-
-  }
-
-}
-
-public class SomeClass {
-
-  private static final LogAdapater LOG = new LogAdapter(LogFactory.getLog(SomeClass.class));
-
-  ...
-
-  public void someMethod() {
-
-    try {
-
+    
+    public enum LogEntry {
+    
+      UnexpectedError("Unexpected Error: {0}", LogLevel.Error);
       ...
-
-    } catch (SomeException e) {
-
-      LOG.log(LogEntry.UnexpectedError, e, e.getMessage());
-
+    
+      private final LogLevel level;
+    
+      public LogLevel getLevel() {
+        return level;
+      }
     }
-
-  }
-
-}
-```
+    
+    public class LogAdapter {
+    
+      private final Log log;
+      ...
+    
+      public void log(LogEntry entry, Object...args) {
+        if (entry.getLevel() == LogLevel.Error) {
+          log.error(entry.getMessage(args));
+        }
+        else if (entry.getLevel() == LogLevel.Warn) {
+          log.warn(entry.getMessage(args));
+        }
+        else ...
+      }
+    
+      public void log(LogEntry entry, Throwable e, Object...args) {
+        if (entry.getLevel() == LogLevel.Error) {
+          log.error(entry.getMessage(args), e);
+        }
+        else if (entry.getLevel() == LogLevel.Warn) {
+          log.warn(entry.getMessage(args), e);
+        }
+        else ...
+      }
+    }
+    
+    public class SomeClass {
+    
+      private static final LogAdapater LOG = new LogAdapter(LogFactory.getLog(SomeClass.class));
+      ...
+    
+      public void someMethod() {
+        try {
+          ...
+        } catch (SomeException e) {
+          LOG.log(LogEntry.UnexpectedError, e, e.getMessage());
+        }
+      }
+    }
 
 To avoid the expensive construction of frequently logged message strings we use conditionals to check if a log level is enabled prior to message construction:
 
-```java
-  ...
-
-  if (LOG.isDebugEnabled()) {
-
-    LOG.debug("Some message - someObject status is: " + someObject.expensiveMethod());
-
-  }
-
-  ...
-```
+      ...
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Some message - someObject status is: " + someObject.expensiveMethod());
+      }
+      ...
 
 Such conditionals are prone to error however, especially if the log level is changed:
 
-```java
-  ...
-
-  if (LOG.isDebugEnabled()) {
-
-    LOG.warn("Some message - someObject status is: " + someObject.expensiveMethod());
-
-  }
-
-  ...
-```
+      ...
+      if (LOG.isDebugEnabled()) {
+        LOG.warn("Some message - someObject status is: " + someObject.expensiveMethod());
+      }
+      ...
 
 Uniform logging can help to avoid such mistakes:
 
-```java
-public enum LogEntry {
-
-  SomeObjectStatus("Some message - someObject status is: {0}", LogLevel.Debug);
-
-  ...
-
-}
-
-public class LogAdapter {
-
-  ...
-
-  public boolean isLoggable(LogEntry entry) {
-
-    if (entry.getLevel() == LogLevel.Debug) {
-
-      return log.isDebugEnabled();
-
-    }
-
-    ...
-
-  }
-
-  public void log(LogEntry entry, Object...args) {
-
-    if (isLoggable(entry) {
-
+    public enum LogEntry {
+      SomeObjectStatus("Some message - someObject status is: {0}", LogLevel.Debug);
       ...
-
     }
-
-  }
-
-  public void log(LogEntry entry, Throwable e, Object...args) {
-
-    if (isLoggable(entry) {
-
+    
+    public class LogAdapter {
       ...
-
+    
+      public boolean isLoggable(LogEntry entry) {
+        if (entry.getLevel() == LogLevel.Debug) {
+          return log.isDebugEnabled();
+        }
+        ...
+      }
+    
+      public void log(LogEntry entry, Object...args) {
+        if (isLoggable(entry) {
+          ...
+        }
+      }
+    
+      public void log(LogEntry entry, Throwable e, Object...args) {
+        if (isLoggable(entry) {
+          ...
+        }
+      }
     }
-
-  }
-
-}
-
-public class SomeClass {
-
-  ...
-
-  public void someMethod() {
-
-    if (LOG.isLoggable(SomeObjectStatus) {
-
-      LOG.log(SomeObjectStatus, someObject.expensiveMethod());
-
+    
+    public class SomeClass {
+      ...
+    
+      public void someMethod() {
+        if (LOG.isLoggable(SomeObjectStatus) {
+          LOG.log(SomeObjectStatus, someObject.expensiveMethod());
+        }
+      }
     }
-
-  }
-
-}
-```
 
 Note that a level check conditional is only required whereby an expensive method must be called to retrieve message arguments. The expense of the message string construction is handled by the *LogAdapter*.
 
