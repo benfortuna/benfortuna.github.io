@@ -27,16 +27,16 @@ comments: []
 <p>[code]<br />
 	<dependencies><br />
 		<dependency><br />
-			<groupId>org.codehaus.groovy<&#47;groupId><br />
-			<artifactId>groovy-all<&#47;artifactId><br />
-		<&#47;dependency><br />
+			<groupId>org.codehaus.groovy</groupId><br />
+			<artifactId>groovy-all</artifactId><br />
+		</dependency><br />
 		<dependency><br />
-			<groupId>org.apache.felix<&#47;groupId><br />
-			<artifactId>org.apache.felix.framework<&#47;artifactId><br />
-			<version>4.0.2<&#47;version><br />
-  		<&#47;dependency><br />
-	<&#47;dependencies><br />
-[&#47;code]</p>
+			<groupId>org.apache.felix</groupId><br />
+			<artifactId>org.apache.felix.framework</artifactId><br />
+			<version>4.0.2</version><br />
+  		</dependency><br />
+	</dependencies><br />
+[/code]</p>
 <p>Then a simple Groovy script to start the OSGi framework and print a message.</p>
 <p>[code]<br />
 import org.osgi.framework.BundleActivator<br />
@@ -69,5 +69,5 @@ osgi.bundleContext.bundles.each {<br />
 	println "$it.bundleId $it.symbolicName $it.state"<br />
 }<br />
 System.exit(0)<br />
-[&#47;code]</p>
+[/code]</p>
 <p>Of course you need to load some bundles to do something useful, but this demonstrates that it isn't actually that hard to create an embedded OSGi runtime with a custom System Bundle Activator for accessing services from other bundles.</p>

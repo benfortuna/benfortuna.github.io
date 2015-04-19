@@ -31,7 +31,7 @@ tags:
 - proxy
 comments: []
 ---
-<p>Sometimes we may have more than one implementation and&#47;or instance of a service to which we need to route requests. Routing may be controlled by a number of different factors, such as the request type, request arguments, runtime configuration, etc.</p>
+<p>Sometimes we may have more than one implementation and/or instance of a service to which we need to route requests. Routing may be controlled by a number of different factors, such as the request type, request arguments, runtime configuration, etc.</p>
 <p>An implementation of such routing might look something like this:</p>
 <p>[java]<br />
 public interface SomeService {<br />
@@ -46,24 +46,24 @@ public interface SomeService {<br />
       delegate.someMethod();<br />
     }<br />
     else {<br />
-      &#47;&#47; XXX: throw runtime exception???<br />
+      // XXX: throw runtime exception???<br />
     }<br />
   }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>The common elements here are:</p>
 <ul>
-<li>A collection of delegate services<&#47;li>
-<li>A mechanism (e.g. key) for identifying the appropriate delegate for a request<&#47;li><br />
-<&#47;ul></p>
+<li>A collection of delegate services</li>
+<li>A mechanism (e.g. key) for identifying the appropriate delegate for a request</li><br />
+</ul></p>
 <p>Using interfaces we can create a pattern for supporting different types of service selection:</p>
 <p>[java]<br />
 public interface ServiceSelector<T> {</p>
 <p>  T getService(Method method, Object[] args);<br />
 }</p>
-<p>&#47;**<br />
+<p>/**<br />
  * A ServiceSelector that routes requests to the active service specified in an external configuration.<br />
- *&#47;<br />
+ */<br />
 public class ConfigurableServiceSelector implements ServiceSelector<SomeService> {</p>
 <p>  private final Map<String, SomeService> services = ...</p>
 <p>  private final Properties configuration = ...</p>
@@ -71,9 +71,9 @@ public class ConfigurableServiceSelector implements ServiceSelector<SomeService>
     return services.get(configuration.getProperty("someService.activeId"));<br />
   }<br />
 }</p>
-<p>&#47;**<br />
+<p>/**<br />
  * A ServiceSelector that supports routing of different methods based on an external configuration.<br />
- *&#47;<br />
+ */<br />
 public class MethodServiceSelector implements ServiceSelector<SomeService> {</p>
 <p>  private final Map<Method, SomeService> services = ...</p>
 <p>  public SomeService getService(Method method, Object[] args) {<br />
@@ -81,7 +81,7 @@ public class MethodServiceSelector implements ServiceSelector<SomeService> {</p>
   }<br />
 }</p>
 <p>...<br />
-[&#47;java]</p>
+[/java]</p>
 <p>So our implementation might then look like this:</p>
 <p>[java]<br />
 public class RoutingSomeService implements SomeService {</p>
@@ -92,12 +92,12 @@ public class RoutingSomeService implements SomeService {</p>
       delegate.someMethod();<br />
     }<br />
     else {<br />
-      &#47;&#47; XXX: throw runtime exception???<br />
+      // XXX: throw runtime exception???<br />
     }<br />
 }<br />
-[&#47;java]</p>
+[/java]</p>
 <p>As you can see this is actually quite an ugly piece of code. However, we can avoid writing this code altogether with the help of Java's proxy support.</p>
-<p><strong>Ergo Proxy<&#47;strong></p>
+<p><strong>Ergo Proxy</strong></p>
 <p>The use of proxies allows us to avoid writing the boilerplate code for service delegation:</p>
 <p>[java]<br />
 import java.lang.reflect.InvocationHandler;<br />
@@ -124,6 +124,6 @@ import java.lang.reflect.Method;</p>
     return new ServiceConsumer((SomeService) Proxy.newProxyInstance(SomeService.class.getClassLoader(), new Class<?>[] {SomeService.class}, invocationHandler);<br />
   }<br />
 }<br />
-[&#47;java]</p>
-<p><strong>Conclusion<&#47;strong></p>
+[/java]</p>
+<p><strong>Conclusion</strong></p>
 <p>Defining a standard interface for routing service requests provides us with a consistent and re-usable way of managing routing rules. Using proxies also ensures that service contracts are maintained and our client code doesn't need to change.</p>
