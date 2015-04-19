@@ -1,22 +1,37 @@
-# Dependencies
-markdown:         redcarpet
-pygments:         true
+##The website title
+name: Base Patterns
+##Markdown processor
+markdown: kramdown
+##syntax highlighter. change it to pygments
+highlighter: pygments
 
-# Permalinks
-permalink:        pretty
+##define base_url for valid usage in sitemap.xml and robots.txt
+base_url: http://basepatterns.org
+sass:
+  sass_dir: _sass
+  style: :compressed
+paginate: 5
+paginate_path: "page:num"
+##The website description (to be used in meta tags)
+description: A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness. No magic will do. - Niklaus Wirth
+##Some frequently used keywords on your website
+keywords: some, relevant, keywords, for, usage, in metatags
 
-# Setup
-title:            Base Patterns
-tagline:          A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness. No magic will do. - Niklaus Wirth
-url:              http://basepatterns.org
-paginate:         1
-baseurl:          /
-author:
-  name:           Ben Fortuna
-  url:            https://twitter.com/elbento
-  email:          fortuna@micronode.com
+##define this for disqus comment support
+#disqus: forumname
 
-# Custom vars
-version:          1.0.0
-github:
-  repo:           https://github.com/benfortuna/fortuna.github.io
+##set this to enable google analytics
+#ga_id: analyticsID
+#ga_domain: analyticsDomain
+
+##Some commonly used links
+links:
+#  facebook: username
+  twitter: elbento
+  email: fortuna@micronode.com
+  github: benfortuna
+
+##put desired image in img/ directory and set the value accordingly. If not defined, a placeholder image will be used.
+about_image: placeholder.jpg
+##comment this if you want full width posts with no sidebar
+sidebar: on
