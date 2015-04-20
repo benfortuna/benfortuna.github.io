@@ -26,7 +26,7 @@ comments: []
 
 In OSGi using a publisher/subscriber design can be somewhat more complicated that traditional Java environments:
 
-```java
+{% highlight java linenos %}
 
 public class SomeBundleActivator implements BundleActivator {
 
@@ -65,12 +65,11 @@ public class AnotherBundleActivator implements BundleActivator {
   ...
 
 }
-
-```
+{% endhighlight %}
 
 To overcome these hurdles the [Whiteboard Pattern] prescribes registering listeners in the service registry as opposed to services, whereby services can publish events to available listeners at the time of the event.
 
-```java
+{% highlight java linenos %}
 
 public class SomeBundleActivator implements BundleActivator {
 
@@ -117,8 +116,7 @@ public class AnotherBundleActivator implements BundleActivator {
   ...
 
 }
-
-```
+{% endhighlight %}
 
 The problem with the *Whiteboard Pattern* is that it relies on the OSGi Service Registry to maintain the list of active subscribers. This means that publishers (i.e. services) must be either OSGi-aware, or events must be specifically handled and repeated to available subscribers.
 
@@ -126,7 +124,7 @@ The problem with the *Whiteboard Pattern* is that it relies on the OSGi Service 
 
 We can extend the Whiteboard Pattern further by creating a dedicated *Registry* that is responsible for wiring together specific publishers and subscribers:
 
-```java
+{% highlight java linenos %}
 
 public class SomeServiceSubscriberRegistry {
 
@@ -169,12 +167,11 @@ public class SomeServiceSubscriberRegistry {
   }
 
 }
-
-```
+{% endhighlight %}
 
 Using this registry publishers and subscribers are wired together as they are made available:
 
-```java
+{% highlight java linenos %}
 
 public class WhiteboardRegistryBundleActivator implements BundleActivator {
 
@@ -259,8 +256,7 @@ public class AnotherBundleActivator implements BundleActivator {
   ...
 
 }
-
-```
+{% endhighlight %}
 
 The wiring can be made even simpler by using a Dependency Injection framework such as [Spring DM]:
 

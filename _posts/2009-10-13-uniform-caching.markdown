@@ -27,7 +27,7 @@ Typically object caching in Java is managed by the container or framework in use
 
 Using the popular [ehcache] framework as an example, the following pattern is typically observed:
 
-```java
+{% highlight java linenos %}
 
 public class SomeClass {
 
@@ -74,8 +74,7 @@ public class SomeClass {
   }
 
 }
-
-```
+{% endhighlight %}
 
 The common aspects of this pattern are as follows:
 
@@ -90,7 +89,7 @@ The common aspects of this pattern are as follows:
 
 As most caching frameworks will allow any object to be used as a key, there is potential for different types of errors, such as a value specified as a key, mixing object types in a single cache, added to the wrong cache instance, etc. We can avoid some of these problems by enforcing a uniform approach to defining cache keys:
 
-```java
+{% highlight java linenos %}
 
 public enum CacheEntry {
 
@@ -121,12 +120,11 @@ public class SomeClass {
   }
 
 }
-
-```
+{% endhighlight %}
 
 As this approach enforces a key 'namespace' for specific object types, it also makes it easier to store mixed data in a single cache, thus simplifying the management of cached objects:
 
-```java
+{% highlight java linenos %}
 
 public class SomeClass {
 
@@ -159,14 +157,13 @@ public class SomeClass {
   }
 
 }
-
-```
+{% endhighlight %}
 
 **Object Loading**
 
 Different types of cached data will also usually require specific code for loading the data initially. We can refactor this to be defined as part of the *CacheEntry*:
 
-```java
+{% highlight java linenos %}
 
 interface Loader<T> {
 
@@ -207,12 +204,11 @@ public enum CacheEntry {
   }
 
 }
-
-```
+{% endhighlight %}
 
 Using this combined object loader and key namespace support we can extract the caching logic to a generic adapter:
 
-```java
+{% highlight java linenos %}
 
 public class CacheAdapter {
 
@@ -275,14 +271,13 @@ public class SomeClass {
   }
 
 }
-
-```
+{% endhighlight %}
 
 **A Real Example**
 
 Caching XMPP VCard objects:
 
-```java
+{% highlight java linenos %}
 
 import org.jivesoftware.smack.XMPPConnection;
 
@@ -341,8 +336,7 @@ public class AvatarRepository {
   }
 
 }
-
-```
+{% endhighlight %}
 
 **Conclusion**
 

@@ -36,7 +36,7 @@ Sometimes we may have more than one implementation and/or instance of a service 
 
 An implementation of such routing might look something like this:
 
-```java
+{% highlight java linenos %}
 
 public interface SomeService {
 
@@ -69,8 +69,7 @@ public class RoutingSomeService implements SomeService {
   }
 
 }
-
-```
+{% endhighlight %}
 
 The common elements here are:
 
@@ -82,7 +81,7 @@ The common elements here are:
 
 Using interfaces we can create a pattern for supporting different types of service selection:
 
-```java
+{% highlight java linenos %}
 
 public interface ServiceSelector<T> {
 
@@ -129,12 +128,11 @@ public class MethodServiceSelector implements ServiceSelector<SomeService> {
 }
 
 ...
-
-```
+{% endhighlight %}
 
 So our implementation might then look like this:
 
-```java
+{% highlight java linenos %}
 
 public class RoutingSomeService implements SomeService {
 
@@ -157,8 +155,7 @@ public class RoutingSomeService implements SomeService {
     }
 
 }
-
-```
+{% endhighlight %}
 
 As you can see this is actually quite an ugly piece of code. However, we can avoid writing this code altogether with the help of Java's proxy support.
 
@@ -166,7 +163,7 @@ As you can see this is actually quite an ugly piece of code. However, we can avo
 
 The use of proxies allows us to avoid writing the boilerplate code for service delegation:
 
-```java
+{% highlight java linenos %}
 
 import java.lang.reflect.InvocationHandler;
 
@@ -215,8 +212,7 @@ public class ServiceConsumer {
   }
 
 }
-
-```
+{% endhighlight %}
 
 **Conclusion**
 
