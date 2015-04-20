@@ -18,7 +18,7 @@ description: A good designer must rely on experience, on precise, logic thinking
 keywords: some, relevant, keywords, for, usage, in metatags
 
 ##define this for disqus comment support
-#disqus: forumname
+disqus: basepatterns
 
 ##set this to enable google analytics
 #ga_id: analyticsID
