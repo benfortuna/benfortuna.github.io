@@ -56,114 +56,110 @@ The Service Locator pattern is a well-established mechanism for accessing local 
 
 {% highlight java linenos %}
 
-    public interface ServiceLocator {
-        <T> T findService(String serviceName) throws ServiceNotAvailableException;
-    }
+public interface ServiceLocator {
+    <T> T findService(String serviceName) throws ServiceNotAvailableException;
+}
 {% endhighlight %}
 
 Using a structured service name interface we can improve uniformity and reduce the potential for typos:
 
 {% highlight java linenos %}
 
-    public enum ServiceName {
-      SomeService("SomeService");
-    
-      private final String filter;
-      ...
-    
-      /**
-        * @return a filter string used to identify the service classification/location.
-        */
-      String getFilter();
-    }
-    
-    public interface ServiceLocator {
-    
-        <T> T findService(ServiceName serviceName) throws ServiceNotAvailableException;
-    }
+public enum ServiceName {
+  SomeService("SomeService");
+
+  private final String filter;
+  ...
+
+  /**
+    * @return a filter string used to identify the service classification/location.
+    */
+  String getFilter();
+}
+
+public interface ServiceLocator {
+
+    <T> T findService(ServiceName serviceName) throws ServiceNotAvailableException;
+}
 {% endhighlight %}
 
 In an OSGi environment, the recommended approach for retrieving services is via the *org.osgi.util.tracker.ServiceTracker* class:
 
 {% highlight java linenos %}
 
-    ...
-      BundleContext context = ...
-      ServiceTracker tracker = new ServiceTracker(context, SomeService.class.getName(), null);
-      tracker.open();
-      SomeService service = (SomeService) tracker.getService();
-    ...
+BundleContext context = ...
+ServiceTracker tracker = new ServiceTracker(context, SomeService.class.getName(), null);
+tracker.open();
+SomeService service = (SomeService) tracker.getService();
 {% endhighlight %}
 
 We can combine these two patterns to provide a more familiar and manageable approach to locating services:
 
 {% highlight java linenos %}
 
-    import java.util.HashMap;
-    import java.util.Map;
-    import org.osgi.framework.BundleContext;
-    import org.osgi.util.tracker.ServiceTracker;
-    
-    public class OsgiServiceLocator implements ServiceLocator {
-        private final BundleContext context;
-        private final Map<ServiceName, ServiceTracker> serviceTrackers;
-    
-        /**
-         * @param context the bundle context in which to find services
-         */
-        public OsgiServiceLocator(BundleContext context) {
-            this.context = context;
-            serviceTrackers = new HashMap<ServiceName, ServiceTracker>();
-        }
-    
-        @SuppressWarnings("unchecked")
-        public <T> T findService(ServiceName serviceName) throws ServiceNotAvailableException {
-            ServiceTracker tracker = serviceTrackers.get(serviceName);
-            if (tracker == null) {
-                synchronized (serviceTrackers) {
-                    tracker = serviceTrackers.get(serviceName);
-                    if (tracker == null) {
-                        tracker = new ServiceTracker(context, context.createFilter(serviceName.getFilter()), null);
-                        tracker.open();
-                        serviceTrackers.put(serviceName, tracker);
-                    }
+import java.util.HashMap;
+import java.util.Map;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
+
+public class OsgiServiceLocator implements ServiceLocator {
+    private final BundleContext context;
+    private final Map<ServiceName, ServiceTracker> serviceTrackers;
+
+    /**
+     * @param context the bundle context in which to find services
+     */
+    public OsgiServiceLocator(BundleContext context) {
+        this.context = context;
+        serviceTrackers = new HashMap<ServiceName, ServiceTracker>();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T findService(ServiceName serviceName) throws ServiceNotAvailableException {
+        ServiceTracker tracker = serviceTrackers.get(serviceName);
+        if (tracker == null) {
+            synchronized (serviceTrackers) {
+                tracker = serviceTrackers.get(serviceName);
+                if (tracker == null) {
+                    tracker = new ServiceTracker(context, context.createFilter(serviceName.getFilter()), null);
+                    tracker.open();
+                    serviceTrackers.put(serviceName, tracker);
                 }
             }
-            final T service = (T) tracker.getService();
-            if (service == null) {
-                throw new ServiceNotAvailableException("Service matching [" + serviceName.getFilter() + "] not found.");
-            }
-            return service;
         }
-        
-        /**
-         * Clean up resources.
-         */
-        public void reset() {
-            for (ServiceTracker tracker : serviceTrackers.values()) {
-                tracker.close();
-            }
-            serviceTrackers.clear();
+        final T service = (T) tracker.getService();
+        if (service == null) {
+            throw new ServiceNotAvailableException("Service matching [" + serviceName.getFilter() + "] not found.");
         }
+        return service;
     }
+    
+    /**
+     * Clean up resources.
+     */
+    public void reset() {
+        for (ServiceTracker tracker : serviceTrackers.values()) {
+            tracker.close();
+        }
+        serviceTrackers.clear();
+    }
+}
 {% endhighlight %}
 
 An example usage might be something like this:
 
 {% highlight java linenos %}
     
-    import org.osgi.framework.Constants;
-    
-    public enum ServiceName {
-      SomeService("(" + Constants.OBJECTCLASS + "=" + SomeService.class.toString() + ")");
-      ...
-    }
-    
-    ...
-      BundleContext context = ...
-      ServiceLocator serviceLocator = new OsgiServiceLocator(context);
-      SomeService service = serviceLocator.findService(ServiceName.SomeService);
-    ...
+import org.osgi.framework.Constants;
+
+public enum ServiceName {
+  SomeService("(" + Constants.OBJECTCLASS + "=" + SomeService.class.toString() + ")");
+  ...
+}
+
+BundleContext context = ...
+ServiceLocator serviceLocator = new OsgiServiceLocator(context);
+SomeService service = serviceLocator.findService(ServiceName.SomeService);
 {% endhighlight %}
 
 **Conclusion**
