@@ -54,17 +54,17 @@ comments:
 
 The Service Locator pattern is a well-established mechanism for accessing local and remote services in a consistent manner:
 
-```java
+{% highlight java linenos %}
 public interface ServiceLocator {
 
     <T> T findService(String serviceName) throws ServiceNotAvailableException;
 
 }
-```
+{% endhighlight %}
 
 Using a structured service name interface we can improve uniformity and reduce the potential for typos:
 
-```java
+{% highlight java linenos %}
 public enum ServiceName {
 
   SomeService("SomeService");
@@ -88,11 +88,11 @@ public interface ServiceLocator {
     <T> T findService(ServiceName serviceName) throws ServiceNotAvailableException;
 
 }
-```
+{% endhighlight %}
 
 In an OSGi environment, the recommended approach for retrieving services is via the *org.osgi.util.tracker.ServiceTracker* class:
 
-```java
+{% highlight java linenos %}
 ...
 
   BundleContext context = ...
@@ -104,11 +104,11 @@ In an OSGi environment, the recommended approach for retrieving services is via 
   SomeService service = (SomeService) tracker.getService();
 
 ...
-```
+{% endhighlight %}
 
 We can combine these two patterns to provide a more familiar and manageable approach to locating services:
 
-```java
+{% highlight java linenos %}
 import java.util.HashMap;
 
 import java.util.Map;
@@ -194,11 +194,11 @@ public class OsgiServiceLocator implements ServiceLocator {
     }
 
 }
-```
+{% endhighlight %}
 
 An example usage might be something like this:
 
-```java
+{% highlight java linenos %}
 import org.osgi.framework.Constants;
 
 public enum ServiceName {
@@ -218,7 +218,7 @@ public enum ServiceName {
   SomeService service = serviceLocator.findService(ServiceName.SomeService);
 
 ...
-```
+{% endhighlight %}
 
 **Conclusion**
 
