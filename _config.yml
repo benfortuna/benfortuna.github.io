@@ -21,8 +21,8 @@ keywords: some, relevant, keywords, for, usage, in metatags
 disqus: basepatterns
 
 ##set this to enable google analytics
-#ga_id: analyticsID
-#ga_domain: analyticsDomain
+ga_id: UA-402774-4
+ga_domain: basepatterns.org
 
 ##Some commonly used links
 links:
