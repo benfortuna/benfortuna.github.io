@@ -32,6 +32,6 @@ links:
   github: benfortuna
 
 ##put desired image in img/ directory and set the value accordingly. If not defined, a placeholder image will be used.
-about_image: placeholder.jpg
+about_image: 984966.png
 ##comment this if you want full width posts with no sidebar
 sidebar: on
