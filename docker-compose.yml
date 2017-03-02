@@ -1,0 +1,10 @@
+site:
+  build: .
+  ports:
+    - 80:4000
+  volumes_from:
+    - bundler-cache
+bundler-cache:
+  image: cogniteev/echo
+  volumes:
+    - /bundle
