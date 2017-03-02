@@ -1,21 +1,36 @@
-##The website title
-name: Base Patterns
-##Markdown processor
-markdown: kramdown
-##syntax highlighter. change it to pygments
-highlighter: rouge
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
 
-##define base_url for valid usage in sitemap.xml and robots.txt
-base_url: http://basepatterns.org
-sass:
-  sass_dir: _sass
-  style: :compressed
-paginate: 5
-paginate_path: "page:num"
-##The website description (to be used in meta tags)
-description: A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness. No magic will do. - Niklaus Wirth
-##Some frequently used keywords on your website
-keywords: some, relevant, keywords, for, usage, in metatags
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+title: Base Patterns
+email: fortuna@micronode.com
+description: > # this means to ignore newlines until "baseurl:"
+  A good designer must rely on experience, on precise, logic thinking; and on pedantic exactness.
+  No magic will do. - Niklaus Wirth
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://basepatterns.org" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: micronode
+github_username:  benfortuna
+
+# Build settings
+markdown: kramdown
+theme: minima
+gems:
+  - jekyll-feed
+exclude:
+  - Gemfile
+  - Gemfile.lock
 
 ##define this for disqus comment support
 disqus: basepatterns
@@ -23,15 +38,3 @@ disqus: basepatterns
 ##set this to enable google analytics
 ga_id: UA-402774-4
 ga_domain: basepatterns.org
-
-##Some commonly used links
-links:
-#  facebook: username
-  twitter: elbento
-  email: fortuna@micronode.com
-  github: benfortuna
-
-##put desired image in img/ directory and set the value accordingly. If not defined, a placeholder image will be used.
-#about_image: 984966.png
-##comment this if you want full width posts with no sidebar
-sidebar: on

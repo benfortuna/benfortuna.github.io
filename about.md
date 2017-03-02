@@ -7,4 +7,7 @@ sitemap:
     lastmod: 2014-09-07T16:31:30+05:30
 ---
 # About
-This is a demo ABOUT page. Edit ```about.html``` to change its contents.
+
+Pattern recognition is one of our most valuable skills. So many aspects of our lives depend on it.
+Software development also increasingly relies on emergent patterns for improving quality based on previously successful approaches.
+BasePatterns.org explores some of the fundamental approaches used in developing modern software.
