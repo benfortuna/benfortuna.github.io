@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Thinking, feeling, coding
+date: '2016-09-14 22:57:02 +1000'
 ---
 Many people may believe software development is a very mechanical process, however it is anything but. 
 Many decisions go into structuring, architecting and designing the components of software, and there are very little constraints to

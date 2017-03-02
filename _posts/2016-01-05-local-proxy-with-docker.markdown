@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Local proxy server with Docker
+date: '2016-01-05 22:57:02 +1000'
 ---
 There is a lot of useful software available, but sometimes the effort required to install and configure can outweigh the benefits. Web proxy servers can be useful for a number of reasons, not least of which is local caching of data to improve performance and reduce bandwidth consumption. Whilst web browsers may perform such data caching quite well, the browser is not the only application connecting to the Internet, and we can still realise benefits from running a local web proxy server.
 
