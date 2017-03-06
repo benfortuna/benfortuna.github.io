@@ -1,0 +1,11 @@
+net.fortuna.mstor
+net.fortuna.mstor.connector
+net.fortuna.mstor.connector.jcr
+net.fortuna.mstor.connector.mbox
+net.fortuna.mstor.connector.nntp
+net.fortuna.mstor.data
+net.fortuna.mstor.data.xml
+net.fortuna.mstor.data.yaml
+net.fortuna.mstor.search
+net.fortuna.mstor.tag
+net.fortuna.mstor.util
