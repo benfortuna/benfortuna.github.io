@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="home">
+
+  <h1 class="page-heading">Posts</h1>
+
+  <table>
+    <tr>
+      <td style="width:70%">
+        <ul class="post-list">
+          {% for post in site.posts %}
+          <li>
+            <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+
+            <h2>
+              <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+            </h2>
+          </li>
+          {% endfor %}
+        </ul>
+      </td>
+      <td>
+        <p><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=benfortuna%40gmail%2ecom&lc=AU&item_name=BasePatterns%2eorg&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"><img src="img/donate_5.jpg" style="width:250px;"></a></p>
+        <p>If you benefit from any of the BasePatterns projects, scan or click on the barcode to donate $5.</p>
+      </td>
+    </tr>
+  </table>
+
+  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+
+</div>
