@@ -1,5 +1,8 @@
 name,quadrant,ring,isNew,description
-Microservices,Techniques,Adopt,TRUE,"Test"
+Microservices,Techniques,Adopt,FALSE,"Test"
+Containerisation,Techniques,Adopt,TRUE,"Test"
+Serverless,Techniques,Adopt,TRUE,"Test"
+"Service mesh",Techniques,Assess,TRUE,"Test"
 Bamboo,Tools,Adopt,TRUE,"Test"
 EC2 Auto-scaling,Platforms,Adopt,TRUE,"Test"
 CloudFormation,"Languages & Frameworks",Adopt,TRUE,"Test"
