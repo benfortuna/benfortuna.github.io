@@ -2,4 +2,4 @@ name,quadrant,ring,isNew,description
 Microservices,Techniques,Adopt,TRUE,"Test"
 Bamboo,Tools,Adopt,TRUE,"Test"
 EC2 Auto-scaling,Platforms,Adopt,TRUE,"Test"
-CloudFormation,Languages & Frameworks,Adopt,TRUE,"Test"
+CloudFormation,"Languages & Frameworks",Adopt,TRUE,"Test"
